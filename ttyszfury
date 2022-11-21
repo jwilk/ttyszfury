@@ -31,7 +31,7 @@ ushort.__name__ = 'unsigned short int'
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('cmd', metavar='COMMAND', help='command to execute')
+    ap.add_argument('cmd', metavar='COMMAND', nargs='?', help='command to execute')
     ap.add_argument('args', metavar='ARGS', nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
     ap.add_argument('-t', '--tty', help='terminal device to resize (default: stdin)')
     for dim, dimension in dict(wd='width', ht='height').items():
@@ -48,6 +48,8 @@ def main():
         help='delay between resizes, in seconds (default: no delay)'
     )
     opts = ap.parse_args()
+    if opts.tty is None and opts.cmd is None:
+        ap.error('-t/--tty or COMMAND is required')
     with contextlib.ExitStack() as ctx:
         if opts.tty:
             fd = os.open(opts.tty, os.O_RDONLY | os.O_NOCTTY)
@@ -123,6 +125,8 @@ async def fury(opts):
             errmsg = None
 
 async def run_cmd(opts):
+    if opts.cmd is None:
+        return
     proc = await asyncio.create_subprocess_exec(opts.cmd, *opts.args)
     rc = await proc.wait()
     await opts.queue.put(rc)
