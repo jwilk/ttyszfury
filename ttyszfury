@@ -6,6 +6,7 @@
 
 import argparse
 import asyncio
+import contextlib
 import fcntl
 import os
 import random
@@ -32,6 +33,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('cmd', metavar='COMMAND', help='command to execute')
     ap.add_argument('args', metavar='ARGS', nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
+    ap.add_argument('-t', '--tty', help='tty device to resize (default: stdin)')
     for dim, dimension in dict(wd='width', ht='height').items():
         for lim in ['min', 'max']:
             default = 1 if lim == 'min' else f'original {dimension}'
@@ -46,21 +48,26 @@ def main():
         help='delay between resizes, in seconds (default: no delay)'
     )
     opts = ap.parse_args()
-    opts.fd = sys.stdin.fileno()
-    try:
-        opts.sz = sz = os.get_terminal_size(opts.fd)
-    except OSError as exc:
-        print(f'{prog}: cannot get terminal size: {exc.strerror}', file=sys.stderr)
-        sys.exit(-1)
-    min_wd = opts.min_wd = opts.min_wd or 1
-    min_ht = opts.min_ht = opts.min_ht or 1
-    max_wd = opts.max_wd = opts.max_wd or sz.columns
-    max_ht = opts.max_ht = opts.max_ht or sz.lines
-    if min_ht > max_ht:
-        ap.error(f'min height ({min_ht}) > max height ({max_ht})')
-    if min_wd > max_wd:
-        ap.error(f'min width ({min_wd}) > max width ({max_wd})')
-    asyncio.run(amain(opts))
+    with contextlib.ExitStack() as ctx:
+        if opts.tty:
+            opts.fd = os.open(opts.tty, os.O_RDONLY | os.O_NOCTTY)
+            ctx.enter_context(os.fdopen(opts.fd, 'rb'))
+        else:
+            opts.fd = sys.stdin.fileno()
+        try:
+            opts.sz = sz = os.get_terminal_size(opts.fd)
+        except OSError as exc:
+            print(f'{prog}: cannot get terminal size: {exc.strerror}', file=sys.stderr)
+            sys.exit(-1)
+        min_wd = opts.min_wd = opts.min_wd or 1
+        min_ht = opts.min_ht = opts.min_ht or 1
+        max_wd = opts.max_wd = opts.max_wd or sz.columns
+        max_ht = opts.max_ht = opts.max_ht or sz.lines
+        if min_ht > max_ht:
+            ap.error(f'min height ({min_ht}) > max height ({max_ht})')
+        if min_wd > max_wd:
+            ap.error(f'min width ({min_wd}) > max width ({max_wd})')
+        asyncio.run(amain(opts))
 
 async def amain(opts):
     opts.queue = asyncio.Queue()
