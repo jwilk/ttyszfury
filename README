@@ -5,10 +5,10 @@ Usage
 
    $ ttyszfury --help
    usage: ttyszfury [-h] [-t TTY] [--min-width N] [--max-width N] [--min-height N] [--max-height N] [--interval N] [COMMAND]
-   
+
    positional arguments:
      COMMAND            command to execute
-   
+
    options:
      -h, --help         show this help message and exit
      -t TTY, --tty TTY  terminal device to resize (default: stdin)
