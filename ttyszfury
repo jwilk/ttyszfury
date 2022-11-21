@@ -50,18 +50,19 @@ def main():
     opts = ap.parse_args()
     with contextlib.ExitStack() as ctx:
         if opts.tty:
-            opts.fd = os.open(opts.tty, os.O_RDONLY | os.O_NOCTTY)
-            ctx.enter_context(os.fdopen(opts.fd, 'rb'))
+            fd = os.open(opts.tty, os.O_RDONLY | os.O_NOCTTY)
+            ctx.enter_context(os.fdopen(fd, 'rb'))
         else:
-            opts.fd = sys.stdin.fileno()
-        if not os.isatty(opts.fd):
+            fd = sys.stdin.fileno()
+        if not os.isatty(fd):
             print(f'{prog}: {opts.tty or "stdin"} is not a tty')
             sys.exit(-1)
         try:
-            opts.sz = sz = os.get_terminal_size(opts.fd)
+            opts.sz = sz = os.get_terminal_size(fd)
         except OSError as exc:
             print(f'{prog}: cannot get terminal size: {exc.strerror}', file=sys.stderr)
             sys.exit(-1)
+        opts.fd = fd
         min_wd = opts.min_wd = opts.min_wd or 1
         min_ht = opts.min_ht = opts.min_ht or 1
         max_wd = opts.max_wd = opts.max_wd or sz.columns
