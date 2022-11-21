@@ -1,0 +1,18 @@
+.. code:: console
+
+   $ ttyszfury --help
+   usage: ttyszfury [-h] [-t TTY] [--min-width N] [--max-width N] [--min-height N] [--max-height N] [--interval N] [COMMAND]
+   
+   positional arguments:
+     COMMAND            command to execute
+   
+   options:
+     -h, --help         show this help message and exit
+     -t TTY, --tty TTY  terminal device to resize (default: stdin)
+     --min-width N      minimum terminal width (default: 1)
+     --max-width N      maximum terminal width (default: original width)
+     --min-height N     minimum terminal height (default: 1)
+     --max-height N     maximum terminal height (default: original height)
+     --interval N       delay between resizes, in seconds (default: no delay)
+
+.. vim:ft=rst ts=3 sts=3 sw=3 et
