@@ -26,6 +26,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{matrix.python}}
+    - name: run tests
+      run: |
+        prove -v
     - name: run pydiatra
       run: |
         python3 -m pip install pydiatra
