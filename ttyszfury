@@ -33,7 +33,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('cmd', metavar='COMMAND', help='command to execute')
     ap.add_argument('args', metavar='ARGS', nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
-    ap.add_argument('-t', '--tty', help='tty device to resize (default: stdin)')
+    ap.add_argument('-t', '--tty', help='terminal device to resize (default: stdin)')
     for dim, dimension in dict(wd='width', ht='height').items():
         for lim in ['min', 'max']:
             default = 1 if lim == 'min' else f'original {dimension}'
@@ -41,7 +41,7 @@ def main():
                 f'--{lim}-{dimension}',
                 dest=f'{lim}_{dim}',
                 metavar='N', type=ushort,
-                help=f'{lim}imum tty {dimension} (default: {default})'
+                help=f'{lim}imum terminal {dimension} (default: {default})'
             )
     ap.add_argument('--interval',
         metavar='N', type=float,
