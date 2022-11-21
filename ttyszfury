@@ -102,7 +102,7 @@ async def fury(opts):
                     sys.exit(rc)
                 else:
                     sig = signal.Signals(-rc).name
-                    errmsg = f'{prog}: child process terminated by {sig}'
+                    errmsg = f'{prog}: target program terminated by {sig}'
                     sys.exit(-1)
     finally:
         termios.tcsetattr(fd, termios.TCSAFLUSH, attrs)
