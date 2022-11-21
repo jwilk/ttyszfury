@@ -26,7 +26,7 @@ Example
    $ ulimit -c unlimited
 
    $ ttyszfury -- info coreutils
-   ttyszfury: target program terminated by SIGSEGV
+   ttyszfury: target program terminated by SIGSEGV (core dumped)
 
    $ gdb -d /path/to/texinfo/ info -c core -batch -ex bt
    [New LWP 1435]

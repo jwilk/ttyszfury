@@ -29,6 +29,16 @@ def ushort(s):
     return n
 ushort.__name__ = 'unsigned short int'
 
+if sys.version_info >= (3, 9):
+    orig_waitstatus_to_exitcode = os.waitstatus_to_exitcode
+    def waitstatus_to_exitcode(status):
+        rc = orig_waitstatus_to_exitcode(status)
+        if rc < 0:
+            rc = signal.Signals(-rc)
+            rc.coredump = os.WCOREDUMP(status)
+        return rc
+    os.waitstatus_to_exitcode = waitstatus_to_exitcode
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('cmd', metavar='COMMAND', nargs='?', help='command to execute')
@@ -111,12 +121,18 @@ async def fury(opts):
             if rc is None and not opts.queue.empty():
                 rc = await opts.queue.get()
             if rc is not None:
-                if rc >= 0:
+                if rc < 0:
+                    rc = signal.Signals(-rc)
+                    rc.coredump = None
+                if isinstance(rc, signal.Signals):
+                    errmsg = f'{prog}: target program terminated by {rc.name}'
+                    if rc.coredump:
+                        errmsg += ' (core dumped)'
+                    sys.exit(-1)
+                elif 0 <= rc <= 0xFF:
                     sys.exit(rc)
                 else:
-                    sig = signal.Signals(-rc).name
-                    errmsg = f'{prog}: target program terminated by {sig}'
-                    sys.exit(-1)
+                    raise RuntimeError(f'unexpected return code {rc}')
     finally:
         termios.tcsetattr(fd, termios.TCSAFLUSH, attrs)
         set_terminal_size(fd, orig_wd, orig_ht)
