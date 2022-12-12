@@ -15,7 +15,7 @@ import struct
 import sys
 import termios
 
-async def _(x):
+async def _():
     f'{await "# Python >= 3.7 is required #"}'
 
 prog = argparse.ArgumentParser().prog
