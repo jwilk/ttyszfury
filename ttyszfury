@@ -40,6 +40,7 @@ if sys.version_info >= (3, 9):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.color = False
     ap.add_argument('cmd', metavar='COMMAND', nargs='?', help='command to execute')
     ap.add_argument('args', metavar='ARGS', nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
     ap.add_argument('-t', '--tty', help='terminal device to resize (default: stdin)')
