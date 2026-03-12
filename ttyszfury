@@ -15,7 +15,9 @@ import struct
 import sys
 import termios
 
-async def _(): f'{await "# Python >= 3.7 is required #"}'
+@(id)  # Python >= 3.9 is required
+def _():
+    pass
 
 prog = argparse.ArgumentParser().prog
 
@@ -28,15 +30,14 @@ def ushort(s):
     return n
 ushort.__name__ = 'unsigned short int'
 
-if sys.version_info >= (3, 9):
-    orig_waitstatus_to_exitcode = os.waitstatus_to_exitcode
-    def waitstatus_to_exitcode(status):
-        rc = orig_waitstatus_to_exitcode(status)
-        if rc < 0:
-            rc = signal.Signals(-rc)
-            rc.coredump = os.WCOREDUMP(status)
-        return rc
-    os.waitstatus_to_exitcode = waitstatus_to_exitcode
+orig_waitstatus_to_exitcode = os.waitstatus_to_exitcode
+def waitstatus_to_exitcode(status):
+    rc = orig_waitstatus_to_exitcode(status)
+    if rc < 0:
+        rc = signal.Signals(-rc)
+        rc.coredump = os.WCOREDUMP(status)
+    return rc
+os.waitstatus_to_exitcode = waitstatus_to_exitcode
 
 def main():
     ap = argparse.ArgumentParser()
